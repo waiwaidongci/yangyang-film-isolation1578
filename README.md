@@ -24,6 +24,8 @@ API 默认监听 `127.0.0.1:19348`。接口文档在 `/api/docs`，机器可读�
 2. `GET /api/spec` 查看 CSV 列、参数和结果口径。`GET /api/datasets` 查找演示台账，或用 `POST /api/datasets` 提交带 `name`、`csv` 的 JSON。
 3. `POST /api/runs` 提交 `dataset_id`、`label` 和可选的 `settings`。响应包含运行 ID 及最终状态。`GET /api/runs/{id}` 返回业务指标、表格或失败原因。
 4. 负责人调用 `POST /api/runs/{id}/review`，提交 `decision`（`approved` 或 `rejected`）和 `note`。批准后可通过 `GET /api/runs/{id}/export/{table_key}` 下载业务表。表名和字段从运行结果取得。
+5. 已批准运行发现历史控制条记错时，负责人调用 `POST /api/runs/{id}/withdrawals` 提交 `strip_id` 与 `reason`。正式回查单先暂停，再沿用原当班样本和参数剔除复算：批次主条、档位、工位均未变则恢复原签核，否则保持暂停。
+6. 暂停中的复算可通过 `POST /api/runs/{id}/revision/retry` 按同一剔除清单重试，重试不重复生成撤回记录；批次有变化时调用 `POST /api/runs/{id}/revision/review` 重新签核。`GET /api/runs/{id}/revision` 查看撤回历史、原签核、逐批比对和当前生效状态，暂停期间下载接口只返回冲突错误。
 
 ## 代码与配置
 
